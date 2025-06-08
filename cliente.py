@@ -34,6 +34,7 @@ class Cliente:
             nome = input('insira seu nome: ')
             sobrenome = input('insira seu sobrenome: ')
             cpf = input('insira seu cpf: ')
+            datanasc = input('insira sua data de nascimento: ')
             telefone = input('insira seu telefone: ')
             email = input('insira seu email: ')
             endereco =  input('digite seu endereço: ')
@@ -41,9 +42,9 @@ class Cliente:
             uf = input('insira sua uf: ')
 
             bd2.cursor.execute("""
-                INSERT INTO Clientes(nome, sobrenome, cpf, telefone, email, endereco, cidade, uf)
-                VALUES(?,?,?,?,?,?,?,?)
-            """, (nome, sobrenome, cpf, telefone, email, endereco, cidade, uf))
+                INSERT INTO Clientes(nome, sobrenome, cpf, datanasc, telefone, email, endereco, cidade, uf)
+                VALUES(?,?,?,?,?,?,?,?,?)
+            """, (nome, sobrenome, cpf, datanasc, telefone, email, endereco, cidade, uf))
             bd2.conn.commit()
 
             print('Cliente cadastrado!')
