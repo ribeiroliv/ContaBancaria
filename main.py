@@ -1,5 +1,6 @@
 from cliente import Cliente
 from conta import Conta, ContaCorrente, ContaPoupanca
+import historico
 
 if __name__ == "__main__":
 
@@ -8,29 +9,29 @@ if __name__ == "__main__":
             op = input("""
                 SELECIONE UMA OPÇÃO
                        1- CADASTRAR CLIENTE
-                       2- CRIAR CONTA --> CORRENTE
-                       3- CRIAR CONTA --> POUPANÇA
-                       4- REALIZAR DEPÓSITO
-                       5- REALIZAR SAQUE
-                       6- TRENSFERIR ENTRE CONTAS
-                       7- EXIBIR TOTAL DE CLIENTES
+                       2- CRIAR CONTA 
+                       3- REALIZAR DEPÓSITO
+                       4- REALIZAR SAQUE
+                       5- TRENSFERIR ENTRE CONTAS
+                       6- EXIBIR TOTAL DE CLIENTES
+                       7- VER EXTRATO
                        0- SAIR
             """)
 
             if op == 1:
                 Cliente.cadastrar()
             elif op == 2:
-                Conta.criarCorrente()
+                Conta.criarConta()
             elif op == 3:
-                Conta.criarPoupanca()
-            elif op == 4:
                 Conta.deposito()
+            elif op == 4:
+                ContaCorrente.saque()
             elif op == 5:
-                Conta.saque()
-            elif op == 6:
                 Conta.tranferencia()
-            elif op == 7:
+            elif op == 6:
                 Conta.get_quant_contas()
+            elif op == 7:
+                historico.gerarExtrato()
             elif op == 0:
                 break
             else:
