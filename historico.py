@@ -3,7 +3,7 @@ class Historico:
     def __init__(self):
         self._transacoes = []
 
-    def addTransacoes(self, tipo, valor, contaDestino=none):
+    def addTransacoes(self, tipo, valor, contaDestino=None):
         transacao = {
             "tipo": tipo,
             "valor": valor,
