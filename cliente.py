@@ -12,14 +12,20 @@ class Cliente:
     @staticmethod
     def verificar_nome(nome):
         try:
-            if len(nome) > 3 and ' ' in nome:
-                return True
-            else:
-                print('Digite um nome válido')
+            nome = nome.strip()  # Remove espaços no início e fim
+            if len(nome) < 3:
+                print('Nome deve ter pelo menos 3 caracteres')
                 return False
-        except TypeError:
-            print(f'Aconteceu o erro: Você passou um número ao invés de um nome')
             
+            if not all(c.isalpha() or c.isspace() for c in nome):
+                print('Nome deve conter apenas letras e espaços')
+                return False
+            
+            return True
+        
+        except AttributeError:  # Captura caso não seja string
+            print('Você passou um valor inválido (não é texto)')
+
             return False
 
     @staticmethod
@@ -30,20 +36,13 @@ class Cliente:
             print('Insira o CPF correto')
             return False
         
-    @staticmethod
-    def validar_data(data_str): 
-        try:
-            datetime.strptime(data_str, '%d/%m/%Y')
-            return True
-        except ValueError:
-            raise ValueError('Data deve estar no formato DD/MM/AAAA')
         
     @staticmethod
     def cadastrar( ): #para os dados do banco
         try:
+            cpf = input('insira seu cpf: ')
             nome = input('insira seu nome: ')
             sobrenome = input('insira seu sobrenome: ')
-            cpf = input('insira seu cpf: ')
             datanasc = input('insira sua data de nascimento: ')
             telefone = input('insira seu telefone: ')
             email = input('insira seu email: ')
@@ -52,15 +51,19 @@ class Cliente:
             uf = input('insira sua uf: ')
 
             # -->Validaçoes<--
-            Cliente.validar_nome(nome)
-            Cliente.validar_nome(sobrenome)
-            Cliente.validar_cpf(cpf)
-            Cliente.validar_data(datanasc)
+            if not Cliente.verificar_nome(nome):
+                return False
+            if not Cliente.verificar_nome(sobrenome):
+                return False
+            if not Cliente.verificar_cpf(cpf):
+                return False
+
+
 
             bd2.cursor.execute("""
-                INSERT INTO Clientes(nome, sobrenome, cpf, datanasc, telefone, email, endereco, cidade, uf)
+                INSERT INTO Clientes(cpf, nome, sobrenome, datanasc, telefone, email, endereco, cidade, uf)
                 VALUES(?,?,?,?,?,?,?,?,?)
-            """, (nome, sobrenome, cpf, datanasc, telefone, email, endereco, cidade, uf))
+            """, (cpf, nome, sobrenome, datanasc, telefone, email, endereco, cidade, uf))
             bd2.conn.commit()
 
             print('Cliente cadastrado com sucesso!')

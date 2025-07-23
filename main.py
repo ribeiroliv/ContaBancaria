@@ -18,21 +18,21 @@ if __name__ == "__main__":
                        0- SAIR
             """)
 
-            if op == 1:
+            if op == '1':
                 Cliente.cadastrar()
-            elif op == 2:
+            elif op == '2':
                 Conta.criarConta()
-            elif op == 3:
+            elif op == '3':
                 Conta.deposito()
-            elif op == 4:
+            elif op == '4':
                 ContaCorrente.saque()
-            elif op == 5:
+            elif op == '5':
                 Conta.tranferencia()
-            elif op == 6:
+            elif op == '6':
                 Conta.get_quant_contas()
-            elif op == 7:
+            elif op == '7':
                 historico.gerarExtrato()
-            elif op == 0:
+            elif op == '0':
                 break
             else:
                 print('Opção invalida!')
