@@ -18,19 +18,6 @@ def criar_tabelas():
     try:
         conectar_banco()
 
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS Clientes (
-            cpf varchar(11) PRIMARY KEY,
-            nome text NOT NULL,
-            sobrenome text NOT NULL,
-            telefone varchar(13),
-            email varchar(100),
-            endereco text,
-            cidade text,
-            uf varchar(2),
-            senha varchar(255),
-            ativo boolean default True                                    
-        );""")
 
         cursor.execute("""           
         CREATE TABLE IF NOT EXISTS Contas (
@@ -85,7 +72,69 @@ def listar_tabelas():
         print(f"Erro ao realizar consulta: {e}")
     conn.close()
 
+def apagar():
+    cursor.execute("DROP TABLE IF EXISTS Clientes")
+
+def cadastrar_cliente():
+    try:
+        conectar_banco()
+        # Verifica/Cria a tabela se não existir
+        cursor.execute("""
+                    
+        CREATE TABLE IF NOT EXISTS Clientes (
+            cpf varchar(11) PRIMARY KEY,
+            nome text NOT NULL,
+            sobrenome text NOT NULL,
+            datanasc text NOT NULL,
+            telefone varchar(13),
+            email varchar(100),
+            endereco text,
+            cidade text,
+            uf varchar(2),
+            senha varchar(255),
+            ativo boolean default True                                    
+        );
+
+            
+        """)
+        conn.commit()
+        print("\nTabelas criadas com sucesso!\n")
+
+    except Exception as e:
+        print(f"Erro ao criar tabelas: {e}")
+        conn.rollback()
+
+    conn.close()
+
+def criar_conta():
+    try:
+        # Primeiro drope a tabela existente (CUIDADO: isso apagará todos os dados)
+        cursor.execute("DROP TABLE IF EXISTS Contas")
+
+        # Crie a tabela com a nova estrutura
+        cursor.execute("""           
+        CREATE TABLE IF NOT EXISTS Contas (
+            numero integer PRIMARY KEY autoincrement,
+            cliente_cpf varchar(11) NOT NULL,
+            saldo real default 0 NOT NULL,
+            limite real,
+            tipo varchar(15) NOT NULL,
+            agencia varchar(10) NOT NULL,
+            ativo boolean default True,                                    
+            FOREIGN KEY (cliente_cpf) REFERENCES Clientes(cpf)
+        );
+        """)
+        conn.commit()
+        print("\nTabelas criadas com sucesso!\n")
+
+    except Exception as e:
+        print(f"Erro ao criar tabelas: {e}")
+        conn.rollback()
+
+    conn.close()
+
 if __name__ == "__main__":
+    conectar_banco()
     while True:
         print()
         print("################################--------################################")
@@ -108,6 +157,10 @@ if __name__ == "__main__":
                 criar_tabelas()
             elif op == 3:
                 listar_tabelas()
+            elif op == 4:
+                cadastrar_cliente()
+            elif op == 5:
+                criar_conta()
             elif op == 0:
                 break
             else:

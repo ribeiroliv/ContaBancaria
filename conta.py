@@ -31,9 +31,9 @@ class Conta(ABC):
                 print('CPF inválido!')
                 return None
             
-            tipoConta = input('Qual tipo de conta? \n1-Corrente \n2-Poupança: ').strip()
+            tipoConta = input('Qual tipo de conta? \n1-Corrente \n2-Poupança: \n').strip()
 
-            agencia = input('Número da agência').strip()
+            agencia = input('Número da agência: ').strip()
 
             bd2.cursor.execute("SELECT cpf FROM Clientes WHERE cpf = ?", (clienteCPF,))
             if not bd2.cursor.fetchone():
@@ -53,7 +53,7 @@ class Conta(ABC):
                 return None
                 
             bd2.cursor.execute("""
-            INSERT INTO Contas(clienteCPF, tipo, agencia, saldo, limite, ativo)
+            INSERT INTO Contas(cliente_cpf, tipo, agencia, saldo, limite, ativo)
             VALUES(?, ?, ?, ?, ?, ?)
         """, (clienteCPF, tipo, agencia, 0.0, limite, True))
             
@@ -70,6 +70,38 @@ class Conta(ABC):
             print(f'erro ao criar conta: {e}')
             bd2.conn.rollback()
             return False
+        
+    def carregar_conta(numero_conta):
+        bd2.cursor.execute("""
+            SELECT c.tipo, c.agencia, c.cliente_cpf, c.limite 
+            FROM Contas c 
+            WHERE c.numero = ?
+        """, (numero_conta,))
+        dados = bd2.cursor.fetchone()
+        
+        if not dados:
+            return None
+            
+        tipo, agencia, cpf, limite = dados
+        
+        if tipo == 'corrente':
+            conta = ContaCorrente(agencia, cpf, limite)
+        else:
+            conta = ContaPoupanca(agencia, cpf)
+            
+        conta._numero = numero_conta
+        bd2.cursor.execute("""
+        SELECT tipooperacao, valor, datahorario, contadestino
+        FROM Historico
+        WHERE conta = ?
+        ORDER BY datahorario
+    """, (numero_conta,))
+    
+        transacoes = bd2.cursor.fetchall()
+        for tipo, valor, data, contadestino in transacoes:
+            conta._historico.addTransacoes(tipo, valor, contadestino)
+        
+        return conta
 
     def deposito(self):
         print('--Depositando--')
@@ -96,7 +128,10 @@ class Conta(ABC):
     @abstractmethod
     def saque(self):
         pass
-
+    
+    def ver_extrato(self):
+        return self._historico.gerarExtrato()
+    
     def transferencia(self):
         print('--Transferindo--')
         try:
@@ -195,6 +230,27 @@ class ContaCorrente(Conta):
     
     def manutencao(self):
         self._saldo-=25
+    def carregar_conta(numero_conta):
+        bd2.cursor.execute("""
+            SELECT tipo, agencia, cliente_cpf, limite, saldo 
+            FROM Contas 
+            WHERE numero = ?
+        """, (numero_conta,))
+        dados = bd2.cursor.fetchone()
+
+        if not dados:
+            return None
+
+        tipo, agencia, cpf, limite, saldo = dados
+
+        if tipo == 'corrente':
+            conta = ContaCorrente(agencia, cpf, limite)
+        else:
+            conta = ContaPoupanca(agencia, cpf)
+
+        conta._numero = numero_conta
+        conta._saldo = saldo  # Atualiza o saldo do objeto
+        return conta
 
     def saque(self):
         print('--Sacando--')
@@ -207,7 +263,7 @@ class ContaCorrente(Conta):
                 return False
             
             if valor > (self._saldo + self._limite):
-                print('Saldo insuficiente!')
+                print('Saldo insuficiente!(Saldo: R${self._saldo:.2f}, Limite: R${self._limite:.2f})')
                 return False
 
             bd2.cursor.execute("""
@@ -221,6 +277,7 @@ class ContaCorrente(Conta):
             
             bd2.conn.commit()
             self._saldo -= valor
+            print(f"Saque de R${valor:.2f} realizado com sucesso!")
             return True
             
         except Exception as e:

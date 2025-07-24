@@ -12,14 +12,6 @@ class Historico:
         }
         self._transacoes.append(transacao)
 
-#  def adicionar_transacao(self, tipo, valor):
-#         data_hora = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-#         transacao = {
-#             "tipo": tipo,
-#             "valor": valor,
-#             "data": data_hora
-#         }
-#         self.__transacoes.append(transacao)
 
     def gerarExtrato(self):
         extrato = []
